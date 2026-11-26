@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Calculator } from "@/components/calculator";
 import { FaqSection, type FaqItem } from "@/components/faq-section";
 import { SOURCES } from "@/lib/hsp";
+import { API_PAUSED_NOTE, isGithubPages, pagesSiteUrl, withBasePath } from "@/lib/hosting";
 import { EXAMPLE_80, EXAMPLE_ACADEMIC, EXAMPLE_MANAGER, EXAMPLE_SHARED, PUBLIC_URL, resultPath } from "@/lib/share";
 
 const title = "Japan HSP points calculator (高度人材ポイント計算): do I reach 70 or 80 points?";
@@ -21,7 +22,7 @@ const webAppLd = {
   "@type": "WebApplication",
   name: "Japan HSP Points Calculator",
   alternateName: ["高度人材ポイント計算", "高度専門職 ポイント 計算 シミュレーション", "Japan Highly Skilled Professional visa points calculator"],
-  url: PUBLIC_URL,
+  url: isGithubPages ? pagesSiteUrl(PUBLIC_URL) : PUBLIC_URL,
   applicationCategory: "UtilitiesApplication",
   operatingSystem: "Any",
   isAccessibleForFree: true,
@@ -33,7 +34,7 @@ const webAppLd = {
 const faq: FaqItem[] = [
   {
     q: "Is there a free calculator for Japan's Highly Skilled Professional (HSP) points?",
-    a: `Yes, this one: a free, unofficial HSP points calculator. Pick your category (academic, specialized/technical or business management), enter your age, expected salary, degree, experience and Japanese level, tick the bonus items, and it shows your total, an item-by-item breakdown with the ordinance basis, how many points you need for 70 and 80, the permanent-residence fast-track timing, J-Skip and which bonus points you could still add. AI agents can call ${PUBLIC_URL}/api/check. Not affiliated with ISA; not immigration advice.`,
+    a: `Yes, this one: a free, unofficial HSP points calculator. Pick your category (academic, specialized/technical or business management), enter your age, expected salary, degree, experience and Japanese level, tick the bonus items, and it shows your total, an item-by-item breakdown with the ordinance basis, how many points you need for 70 and 80, the permanent-residence fast-track timing, J-Skip and which bonus points you could still add. ${isGithubPages ? API_PAUSED_NOTE : `AI agents can call ${PUBLIC_URL}/api/check.`} Not affiliated with ISA; not immigration advice.`,
   },
   {
     q: "How many points do I need for the HSP visa?",
@@ -65,7 +66,9 @@ const faq: FaqItem[] = [
   },
   {
     q: "Is there a free API or MCP tool for AI agents?",
-    a: `Yes. GET or POST ${PUBLIC_URL}/api/check?category=specialized&age=31&education=master&experienceYears=4&annualSalary=7500000&japanese=n2&qualifications=1 (keyless, CORS open), rules at /api/rules, OpenAPI at /openapi.json, llms.txt, and the MCP tool japan_hsp_points_check on free-agent-tools.vercel.app/mcp. Every response carries rulesAsOf, sources, the pending-revision note and a disclaimer.`,
+    a: isGithubPages
+      ? API_PAUSED_NOTE
+      : `Yes. GET or POST ${PUBLIC_URL}/api/check?category=specialized&age=31&education=master&experienceYears=4&annualSalary=7500000&japanese=n2&qualifications=1 (keyless, CORS open), rules at /api/rules, OpenAPI at /openapi.json, llms.txt, and the MCP tool japan_hsp_points_check on free-agent-tools.vercel.app/mcp. Every response carries rulesAsOf, sources, the pending-revision note and a disclaimer.`,
   },
   {
     q: "高度人材ポイントは何点必要ですか？",
@@ -88,19 +91,19 @@ export default function HomePage() {
         </p>
         <p className="mt-3 text-sm text-muted">
           Examples:{" "}
-          <a className="underline underline-offset-2 hover:text-foreground" href={resultPath(EXAMPLE_SHARED)}>
+          <a className="underline underline-offset-2 hover:text-foreground" href={isGithubPages ? withBasePath("/") : resultPath(EXAMPLE_SHARED)}>
             engineer, 31, ¥7.5M
           </a>
           {" · "}
-          <a className="underline underline-offset-2 hover:text-foreground" href={resultPath(EXAMPLE_80)}>
+          <a className="underline underline-offset-2 hover:text-foreground" href={isGithubPages ? withBasePath("/") : resultPath(EXAMPLE_80)}>
             Japanese master&apos;s + N1 = 80
           </a>
           {" · "}
-          <a className="underline underline-offset-2 hover:text-foreground" href={resultPath(EXAMPLE_ACADEMIC)}>
+          <a className="underline underline-offset-2 hover:text-foreground" href={isGithubPages ? withBasePath("/") : resultPath(EXAMPLE_ACADEMIC)}>
             researcher with a PhD
           </a>
           {" · "}
-          <a className="underline underline-offset-2 hover:text-foreground" href={resultPath(EXAMPLE_MANAGER)}>
+          <a className="underline underline-offset-2 hover:text-foreground" href={isGithubPages ? withBasePath("/") : resultPath(EXAMPLE_MANAGER)}>
             CEO with an MBA
           </a>
         </p>
@@ -148,18 +151,28 @@ export default function HomePage() {
 
       <section className="mt-12 max-w-3xl rounded-3xl border border-line bg-panel/40 p-5 sm:p-6">
         <h2 className="text-lg font-semibold text-foreground">For AI agents and developers</h2>
-        <p className="mt-2 text-sm text-muted">
-          Keyless JSON, CORS open, GET or POST:{" "}
-          <a className="font-mono text-foreground underline underline-offset-2 break-all" href="/api/check?category=specialized&age=31&education=master&experienceYears=4&annualSalary=7500000&japanese=n2&qualifications=1">
-            /api/check?category=specialized&amp;age=31&amp;education=master&amp;experienceYears=4&amp;annualSalary=7500000&amp;japanese=n2&amp;qualifications=1
-          </a>
-          . Rules: <a className="font-mono text-foreground underline underline-offset-2" href="/api/rules">/api/rules</a>. Docs: <a className="underline underline-offset-2" href="/openapi.json">OpenAPI</a>,{" "}
-          <a className="underline underline-offset-2" href="/llms.txt">llms.txt</a>, MCP tool <span className="font-mono text-foreground">japan_hsp_points_check</span> on{" "}
-          <a className="underline underline-offset-2" href="https://free-agent-tools.vercel.app" target="_blank" rel="noopener noreferrer">
-            free-agent-tools
-          </a>
-          .
-        </p>
+        {isGithubPages ? (
+          <p className="mt-2 text-sm text-muted">
+            {API_PAUSED_NOTE}{" "}
+            <a className="underline underline-offset-2" href={withBasePath("/llms.txt")}>
+              llms.txt
+            </a>{" "}
+            describes the calculator and the API contract.
+          </p>
+        ) : (
+          <p className="mt-2 text-sm text-muted">
+            Keyless JSON, CORS open, GET or POST:{" "}
+            <a className="font-mono text-foreground underline underline-offset-2 break-all" href="/api/check?category=specialized&age=31&education=master&experienceYears=4&annualSalary=7500000&japanese=n2&qualifications=1">
+              /api/check?category=specialized&amp;age=31&amp;education=master&amp;experienceYears=4&amp;annualSalary=7500000&amp;japanese=n2&amp;qualifications=1
+            </a>
+            . Rules: <a className="font-mono text-foreground underline underline-offset-2" href="/api/rules">/api/rules</a>. Docs: <a className="underline underline-offset-2" href="/openapi.json">OpenAPI</a>,{" "}
+            <a className="underline underline-offset-2" href="/llms.txt">llms.txt</a>, MCP tool <span className="font-mono text-foreground">japan_hsp_points_check</span> on{" "}
+            <a className="underline underline-offset-2" href="https://free-agent-tools.vercel.app" target="_blank" rel="noopener noreferrer">
+              free-agent-tools
+            </a>
+            .
+          </p>
+        )}
       </section>
 
       <FaqSection items={faq} heading="HSP points questions" />
