@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CardDisclaimer } from "@/components/card-disclaimer";
 import { ShareBar } from "@/components/share-bar";
 import { CATEGORIES, CATEGORY_LABEL, EDUCATION, EDUCATION_LABEL, type Category, type Education, type JapaneseLevel, type Position } from "@/lib/hsp";
+import { isGithubPages, pagesSiteUrl } from "@/lib/hosting";
 import { EXAMPLE_SHARED, PUBLIC_URL, resultPath, safeCheck, type FlagName, type Shared } from "@/lib/share";
 
 const field = "mt-2 w-full rounded-xl border border-line bg-black/40 px-3 py-2 text-sm text-foreground focus:border-amber";
@@ -66,7 +67,7 @@ export function Calculator({ initial }: { initial?: Shared }) {
     flags: flags.filter((f) => visible.some((v) => v.key === f)),
   };
   const r = safeCheck(shared);
-  const shareUrl = `${PUBLIC_URL}${resultPath(shared)}`;
+  const shareUrl = isGithubPages ? `${pagesSiteUrl(PUBLIC_URL)}/` : `${PUBLIC_URL}${resultPath(shared)}`;
   const toggle = (k: FlagName) => setFlags((cur) => (cur.includes(k) ? cur.filter((x) => x !== k) : [...cur, k]));
 
   return (
@@ -220,6 +221,9 @@ export function Calculator({ initial }: { initial?: Shared }) {
               ) : null}
               <p className="mt-4 rounded-2xl border border-amber/30 bg-amber/5 p-3 text-xs leading-relaxed text-amber-100">{r.pendingRevision}</p>
               <div className="mt-6">
+                {isGithubPages ? (
+                  <p className="mb-3 text-xs text-muted">Share the calculator. A link to this exact result returns when hosting is back.</p>
+                ) : null}
                 <ShareBar url={shareUrl} text={`Japan HSP points: ${r.total} (${r.statusCode})`} />
               </div>
             </>
